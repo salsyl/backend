@@ -1,0 +1,78 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+  meta(http-equiv='X-UA-Compatible' content='ie=edge')
+  title pug
+  // ------------------- css ------------------
+  link(rel='stylesheet' href='css/bootstrap.min.css')
+  link(rel='stylesheet' href='css/style.css')
+  // ------------------- css ------------------
+  // --------------script  -------------------------
+  script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js')
+  script(type='text/javascript' src='/socket.io/socket.io.js')
+  // /////////////////////////////////////////////
+  script.
+    (function (window, io) {
+    window.addEventListener('DOMContentLoaded', function () {
+    var socket = io('http://127.0.0.1:80/');
+    //////////////////formulaire//////////////////
+    var formulaire = window.document.getElementById('loginForm');
+    formulaire.addEventListener('submit', function (event) {
+    event.preventDefault();
+    var pseudo = window.document.getElementById('pseudo').value;
+    var psw = window.document.getElementById('psw').value;
+    ////////////////////////socketio////////////////
+    socket.emit('inscription', {
+    pseudo: pseudo,
+    psw: psw
+    });
+    });
+    })
+    })(window, io)
+  // ----------------------- script ------------------
+// ----------------------- header  ------------------
+.container-fluid
+  .row
+    // ----------------------- formulaire connection  ------------------
+    form#connection.form.col-sm-4(style='margin:50px')
+      legend connection
+      .form-group
+        label.col-lg-4.control-label(for='psw') pseudo
+        input#pseudoConection.form-control(name='pseudoConection' type='text' value='etale')
+      //
+        <div class="form-group">
+        <label class="col-lg-4 control-label" for="psw">email</label>
+        <input class="form-control" id="email" name="email" type="email" value="etale@etal.com">
+        </div>
+      .form-group
+        label.col-lg-4.control-label(for='psw') mot de passe
+        input#pass.form-control(name='pass' type='password' value='etale')
+      .form-group
+        button#accedez.btn.btn-primary(type='submit') valider
+    // ----------------------- end formulaire connection  ------------------
+    // ----------------------- formulaire inscrition  ------------------
+    form#loginForm.form.col-sm-4(style='margin:50px')
+      legend inscription
+      .form-group
+        label.col-lg-4.control-label(for='pseudo') pseudo
+        input#pseudo.form-control(name='pseudo' type='text')
+      //
+        <div class="form-group">
+        <label class="col-lg-4 control-label" for="nom">nom</label>
+        <input class="form-control" id="nom" name="nom" type="text" value="syl">
+        </div>
+        <div class="form-group">
+        <label class="col-lg-4 control-label" for="prenom">prenom</label>
+        <input class="form-control" id="prenom" name="prenom" type="text" value="sal">
+        </div>
+        <div class="form-group">
+        <label class="col-lg-4 control-label" for="mail">mail</label>
+        <input class="form-control" id="mail" name="mail" type="email" value="etale@etal.com">
+        </div>
+      .form-group
+        label.col-lg-4.control-label(for='psw') mot de passe
+        input#psw.form-control(name='psw' type='password' value='etale')
+      button#valider.btn.btn-primary(type='submit') valider
+    // ----------------------- end formulaire inscrition  ------------------
+    // ----------------------- header  ------------------

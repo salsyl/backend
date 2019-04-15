@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>connection</title>
+    <!--------------------- css -------------------->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <!--------------------- css -------------------->
+    <!----------------script  --------------------------->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <!-- ///////////////////////////////////////////// -->
+    <script>
+        (function (window, io) {
+            window.addEventListener('DOMContentLoaded', function () {
+                var socket = io('http://127.0.0.1:80/');
+                //////////////////formulaire inscription//////////////////
+                var formulaire = window.document.getElementById('loginForm');
+                formulaire.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    var pseudo = window.document.getElementById('pseudo').value;
+                    var psw = window.document.getElementById('psw').value;
+                    ////////////////////////socketio////////////////                
+
+                    socket.emit('inscription', {
+                        pseudo: pseudo,
+                        psw: psw
+
+                    });
+
+                });
+                //////////////////////////////////////////////
+
+                //////////////////formulaire connection/////////
+                var formulaireConnection = window.document.getElementById('connection');
+                formulaireConnection.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    var pseudo = window.document.getElementById('pseudoConection').value;
+                    var psw = window.document.getElementById('pass').value;
+                     ////////////////////////socketio////////////////                
+
+                     socket.emit('formConnect', {
+                        pseudo: pseudo,
+                        psw: psw
+
+                    });
+                })
+
+//////////////////////////////
+socket.on('badUser', function(message){
+    alert(message)
+})
+            })
+
+        })(window, io)
+    </script>
+    <!------------------------- script -------------------->
+</head>
+
+<body>
+
+    <!------------------------- header  -------------------->
+    <div class="container-fluid">
+        <div class="row">
+
+            <!------------------------- formulaire connection  -------------------->
+
+            <form class="form col-sm-4" id="connection" style="margin:50px">
+                    <legend>connection</legend>
+
+                <div class="form-group">
+                    <label class="col-lg-4 control-label" for="psw">pseudo</label>
+                    <input id="pseudoConection" class="form-control" name="pseudoConection" type="text" value="etale">
+                </div>
+                <!-- <div class="form-group">
+                        <label class="col-lg-4 control-label" for="psw">email</label>
+                        <input class="form-control" id="email" name="email" type="email" value="etale@etal.com">
+                    </div> -->
+                <div class="form-group">
+                    <label class="col-lg-4 control-label" for="psw">mot de passe</label>
+                    <input class="form-control" id="pass" name="pass" type="password" value="etale">
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" id="accedez">valider</button>
+                </div>
+
+            </form>
+            <!-- ----------------------- end formulaire connection  -------------------->
+            <!------------------------- formulaire inscrition  ------------------ -->
+            <form class="form col-sm-4" id="loginForm" style="margin:50px">
+
+                    <legend>inscription</legend>
+                <div class="form-group">
+                    <label class="col-lg-4 control-label" for="pseudo">pseudo</label>
+                    <input class="form-control" id="pseudo" name="pseudo" type="text">
+                </div>
+
+                <!-- <div class="form-group">
+                    <label class="col-lg-4 control-label" for="nom">nom</label>
+                    <input class="form-control" id="nom" name="nom" type="text" value="syl">
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-4 control-label" for="prenom">prenom</label>
+                    <input class="form-control" id="prenom" name="prenom" type="text" value="sal">
+                </div>
+
+                <div class="form-group">
+
+                    <label class="col-lg-4 control-label" for="mail">mail</label>
+                    <input class="form-control" id="mail" name="mail" type="email" value="etale@etal.com">
+                </div> -->
+
+                <div class="form-group">
+
+                    <label class="col-lg-4 control-label" for="psw">mot de passe</label>
+                    <input class="form-control" id="psw" name="psw" type="password" value="etale">
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="valider">valider</button>
+            </form>
+            <!------------------------- end formulaire inscrition  -------------------->
+            <!------------------------- header  -------------------->
+
+        </div>
+    </div>
+
+</body>
+
+</html>

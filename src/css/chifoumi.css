@@ -1,0 +1,27 @@
+html {
+	color: black;
+	background-color: rgb(228, 48, 198);
+	background-image: none;
+	background-repeat: repeat;
+	background-attachment: scroll;
+	background-position: 0% 0%;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: small;
+}
+
+table {
+	background-color: #b95656;
+	border-color: #000000;
+	border-style: solid;
+	border-width: 2px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+table td {
+    background-color: #b95656;
+	border-style: double;
+	border-width: 1px;
+	text-align: center;
+}
