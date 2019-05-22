@@ -1,0 +1,80 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  meta(name='viewport', content='width=device-width, initial-scale=1.0')
+  meta(http-equiv='X-UA-Compatible', content='ie=edge')
+  title jeu backend
+  link(rel='stylesheet', href='css/bootstrap.min.css')
+  link(rel='stylesheet', href='css/style.css')
+  // ------------------- css ------------------
+  // --------------script  -------------------------
+  script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js')
+  script(type='text/javascript', src='/socket.io/socket.io.js')
+  script.
+    (function (windows, io) {
+    window.addEventListener('DOMContentLoaded', function () {
+    // var socket = io('http://192.168.0.37:80');
+    var socket = io('http://192.168.1.39:80/');
+    // var socket = io('http://192.168.56.1:80/');
+    // var socket = io('http://127.0.0.1:80/');
+    // var socket = io('http://192.168.1.9:80');
+    // var socket = io('http://51.83.71.226:80/');
+    var leCss = document.getElementById('cible').style;
+    var score = 0;
+    socket.on('pseudo', function (data) {
+    console.log(data.pseudo)
+    });
+    document.getElementById('cible').addEventListener('click', function () {
+    socket.emit('unMouvement', {
+    x: Math.round(Math.random() * 800),
+    y: Math.round(Math.random() * 400)
+    });
+    });
+    socket.on('positionPourTousLeMonde', function (message) {
+    console.log(message);
+    var laCible = function (position) {
+    // console.log(position);
+    var laDiv = document.createElement('div');
+    document.body.appendChild(laDiv);
+    laDiv.id = 'carre';
+    // console.log(position.x);
+    var calculX = position.x;
+    var calculY = position.y;
+    // leCss.backgroundColor = 'red';
+    // leCss.backgroundColor = position.message.couleur;
+    // leCss.height = '20px';
+    //     leCss.width = '20px';
+    //     leCss.position = 'absolute';
+    leCss.left = calculX + 'px';
+    leCss.top = calculY + 'px';
+    }(message)
+    });
+    });
+    })(window, io);
+.row
+  table
+    thead
+      tr
+        th pseudo
+        th score
+    tbody
+      tr
+        td = joueur1
+        td = score
+      tr
+        td = joueur1
+        td score
+  table
+    thead
+      tr
+        th pseudo
+        th score
+    tbody
+      tr
+        td pseudo
+        td score
+      tr
+        td pseudo
+        td score
+#carreViaSrv(style='height:500px; width: 820px; border:2px solid red ;position: absolute')
+  #cible(style='height : 10px; width:10px; background-color : black ; position: absolute')

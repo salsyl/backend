@@ -1,0 +1,14 @@
+doctype html
+head
+    link(rel='stylesheet', href='css/bootstrap.min.css')
+    link(rel='stylesheet', href='css/style.css')
+    title resultats
+body
+    button#versListe.btn.btn-dark(type='button')
+        a(href='http://192.168.1.21/') login
+        //- a(href='http://51.83.71.226/') login
+
+
+    ul#histo
+    each val in message
+        li= val.historique

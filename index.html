@@ -5,131 +5,264 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
     <title>connection</title>
-    <!--------------------- css -------------------->
+
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <!--------------------- css -------------------->
-    <!----------------script  --------------------------->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-    <!-- ///////////////////////////////////////////// -->
     <script>
         (function (window, io) {
             window.addEventListener('DOMContentLoaded', function () {
-                var socket = io('http://127.0.0.1:80/');
+                var socket = io('http://192.168.1.21:80/');
+                // var socket = io('http://127.0.0.1:80/');
+                // var socket = io('http://51.83.71.226:80/');
+
+                //variables////////////////////////////// 
+                var leCss = document.getElementById('cible').style; //le carré
+                var scoreId;
+                var score;
+                var click = true;
+                var contenuTd; 
+
+                ///////////partie en cours /////
+                socket.on('complet', function (data) {
+                    $('.regle').fadeOut();
+                    $('#loginForm').fadeOut();
+                    $('#connection').fadeOut();
+                    $('.message').append(
+                        '<p  style="font-size: 5em ; text-align:center "> 2 joueurs deja en ligne <br>patientez et relancez la page ! </p>'
+                    );
+                });
+                /////////// attente joueur 2 /////
+                socket.on('attente', function (data) {
+                    $('.regle').fadeOut();
+                    $('#loginForm').fadeOut();
+                    $('#connection').fadeOut();
+                    $('.message').append(
+                        '<p class="wait" style="font-size: 5em ; text-align:center ">attente de joueur <br>patientez ! </p>'
+                    );
+                });
+                // 2 joueurs ok//////////////////
+                socket.on('logged', function () {
+                    $('.regle').fadeOut();
+                    $('#loginForm').fadeOut();
+                    $('#connection').fadeOut();
+                    $('.jeu').fadeIn();
+                });
+
+                /////jeu///////////////////////////
+                socket.on('new', function (data) {
+                    scoreId = data.id + 1;
+                    score = data.score;
+                    
+                    if ($('#users tr').length === 2) {
+                        console.log($('#users tr').length);
+                    } else {
+                        $('#users').append('<tr>' +
+                            '<td id=' + data.id + '> ' + data.id + ' </td>' +
+                            '<td id=' + data.id + 1 + '> ' + score + ' </td>' +
+                            '</tr>'
+                        );
+                    };
+
+                    if (data.nbJoueur) {
+                        $('.wait').fadeOut();
+                        $('.jeu').fadeIn();
+                    };
+
+                    // envoi position
+                    window.document.getElementById('cible').addEventListener('click', function () {
+                        if (click) {
+                            socket.emit('unMouvement', {
+                                x: Math.round(Math.random() * 800),
+                                y: Math.round(Math.random() * 400),
+                            });
+                            // pour limiter le nb de socket.emit du au click
+                            click = false;
+                        }
+                    });
+                });
+
+                // deconnection 
+                socket.on('deconnectionUser', function (data) {
+                    $('.message').append(
+                        '<p class="horsLigne" style="font-size: 5em ; text-align:center ">joueur2 hors ligne <br>profitez-en ! </p>'
+                    );
+                });
+
+                ////// pseudo client
+                socket.on('pseudo', function (data) {
+                    console.log(data);
+                    j1 = data.pseudo;
+                    window.document.getElementById('joueur1').innerHTML = j1;
+                    window.document.getElementById('score1').innerHTML = data.point;
+                });
+
+                /////////////////////
+                socket.on('score', function (data) {
+                    console.log(data.info.id + data.info.score);
+                    score = data.info.score;
+                    console.log('score ' + score);
+                    $('#' + data.info.id + 1).html(score);
+                });
+
+                socket.on('positionPourTousLeMonde', function (message) {
+                    // pour autoriser la prise en compte du click
+                    click = true;
+
+                    //position de la cible
+                    var laCible = function (data) {
+                        var laDiv = document.createElement('div');
+                        document.body.appendChild(laDiv);
+                        laDiv.id = 'carre';
+                        var calculX = data.x;
+                        var calculY = data.y;
+                        leCss.left = calculX + 'px';
+                        leCss.top = calculY + 'px';
+                    }(message)
+                });
+
+                socket.on('perdu', function (data) {
+                    $('#carreViaSrv').fadeOut();
+                    $('#win').append('victoire de ' + data.vainqueur.pseudo);
+                    setTimeout(function(){
+                         window.document.location.href = 'http://192.168.1.21/pug';
+                         }, 3000);
+                });
+                 
+                socket.on('demandeResultats', function () {
+                    contenuTd = $('#users').text();
+                    socket.emit('resultatFinal', {
+                        resultatFinal: contenuTd
+                    })
+                });
+
                 //////////////////formulaire inscription//////////////////
                 var formulaire = window.document.getElementById('loginForm');
+
                 formulaire.addEventListener('submit', function (event) {
                     event.preventDefault();
                     var pseudo = window.document.getElementById('pseudo').value;
                     var psw = window.document.getElementById('psw').value;
-                    ////////////////////////socketio////////////////                
 
                     socket.emit('inscription', {
                         pseudo: pseudo,
                         psw: psw
-
                     });
-
                 });
-                //////////////////////////////////////////////
-
+                
                 //////////////////formulaire connection/////////
                 var formulaireConnection = window.document.getElementById('connection');
+
                 formulaireConnection.addEventListener('submit', function (event) {
                     event.preventDefault();
                     var pseudo = window.document.getElementById('pseudoConection').value;
                     var psw = window.document.getElementById('pass').value;
-                     ////////////////////////socketio////////////////                
-
-                     socket.emit('formConnect', {
+                    
+                    socket.emit('formConnect', {
                         pseudo: pseudo,
                         psw: psw
-
                     });
-                })
+                });
 
-//////////////////////////////
-socket.on('badUser', function(message){
-    alert(message)
-})
+                ///////mot de passe incorrect.'/////////////
+                socket.on('incorrect', function (data) {
+                    $('#err').fadeIn();
+                    setTimeout(function () {
+                        $('#err').fadeOut()
+                    }, 2000)
+                });
+
+                //////////// pseudo dejaPris///////////
+                socket.on('dejaPris', function (data) {
+                    $('#dejaPris').fadeIn();
+                    setTimeout(function () {
+                        $('#dejaPris').fadeOut()
+                    }, 2000)
+                })
             })
 
         })(window, io)
     </script>
     <!------------------------- script -------------------->
 </head>
+<!-- /////////////////////////////////////////////////////////////// -->
+<!-- /////////////////////////////////////////////////////////////// -->
+<!-- /////////////////////////////////////////////////////////////// -->
+<!-- /////////////////////////////////////////////////////////////// -->
+<!-- /////////////////////////////////////////////////////////////// -->
+<!-- /////////////////////////////////////////////////////////////// -->
 
 <body>
 
+    <button id="versListe" type="button" class="btn btn-dark"><a href="http://192.168.1.21/pug">liste des resultats</a>
+    </button>
+    <!-- <button id="versListe" type="button" class="btn btn-dark"><a href="http://51.83.71.226/pug">liste des resultats</a> </button> -->
+    
+    <div class="message"></div>
+    
+    <h1 id="win"></h1>
+    
+    <div id="users"></div>
+    
+    <div class="jeu" style="display:none">
+        <div id="carreViaSrv"
+            style="display: block; height:500px; width: 820px; border:2px solid red ;background-color: rgba(255, 255, 255, 0.3);position: absolute">
+            <div id="cible" style="height : 10px; width:10px; background-color : black ; position: absolute">
+            </div>
+        </div>
+    </div>
+    </div>
+<h1 class="regle"> cliquez <br> 10 fois avant l'adversaire <br> et c'est gagné </h1>
     <!------------------------- header  -------------------->
     <div class="container-fluid">
         <div class="row">
 
             <!------------------------- formulaire connection  -------------------->
-
-            <form class="form col-sm-4" id="connection" style="margin:50px">
-                    <legend>connection</legend>
+            <form class="form col-sm-4" id="connection" style="margin:50px; ">
+                    <legend>connection
+                    <strong id="err" style="display:none ;color:red"> pseudo ou mot de passe incorrect.</strong>
+                </legend>
 
                 <div class="form-group">
                     <label class="col-lg-4 control-label" for="psw">pseudo</label>
-                    <input id="pseudoConection" class="form-control" name="pseudoConection" type="text" value="etale">
+                    <input id="pseudoConection" class="form-control" name="pseudoConection" type="text" required>
                 </div>
-                <!-- <div class="form-group">
-                        <label class="col-lg-4 control-label" for="psw">email</label>
-                        <input class="form-control" id="email" name="email" type="email" value="etale@etal.com">
-                    </div> -->
                 <div class="form-group">
                     <label class="col-lg-4 control-label" for="psw">mot de passe</label>
-                    <input class="form-control" id="pass" name="pass" type="password" value="etale">
+                    <input class="form-control" id="pass" name="pass" type="password" required>
                 </div>
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary" id="accedez">valider</button>
                 </div>
 
+
             </form>
             <!-- ----------------------- end formulaire connection  -------------------->
             <!------------------------- formulaire inscrition  ------------------ -->
             <form class="form col-sm-4" id="loginForm" style="margin:50px">
 
-                    <legend>inscription</legend>
+                    <legend>inscription :
+                    <strong id="dejaPris" style="display:none; color:red"> pseudo deja pris!</strong>
+                </legend>
                 <div class="form-group">
                     <label class="col-lg-4 control-label" for="pseudo">pseudo</label>
-                    <input class="form-control" id="pseudo" name="pseudo" type="text">
+                    <input class="form-control" id="pseudo" name="pseudo" type="text" required>
                 </div>
-
-                <!-- <div class="form-group">
-                    <label class="col-lg-4 control-label" for="nom">nom</label>
-                    <input class="form-control" id="nom" name="nom" type="text" value="syl">
-                </div>
-
                 <div class="form-group">
-                    <label class="col-lg-4 control-label" for="prenom">prenom</label>
-                    <input class="form-control" id="prenom" name="prenom" type="text" value="sal">
-                </div>
-
-                <div class="form-group">
-
-                    <label class="col-lg-4 control-label" for="mail">mail</label>
-                    <input class="form-control" id="mail" name="mail" type="email" value="etale@etal.com">
-                </div> -->
-
-                <div class="form-group">
-
                     <label class="col-lg-4 control-label" for="psw">mot de passe</label>
-                    <input class="form-control" id="psw" name="psw" type="password" value="etale">
+                    <input class="form-control" id="psw" name="psw" type="password" required>
                 </div>
-
                 <button type="submit" class="btn btn-primary" id="valider">valider</button>
             </form>
             <!------------------------- end formulaire inscrition  -------------------->
             <!------------------------- header  -------------------->
 
-        </div>
-    </div>
 
 </body>
 
